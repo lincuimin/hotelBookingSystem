@@ -6,8 +6,11 @@ import AppLayout from "../ui/AppLayout";
 import { Employees } from "../pages/Employees";
 import { Customers } from "../pages/Customers";
 import { Announcements } from "../pages/Announcements";
+import { Announcements_emp } from "../pages/Announcements_emp";
 import { Bookings } from "../pages/Bookings";
+import { Bookings_emp } from "../pages/Bookings_emp";
 import { History } from "../pages/History";
+import { History_emp } from "../pages/History_emp";
 import { Rooms } from "../pages/Rooms";
 
 export const routes = [
@@ -58,11 +61,11 @@ export const routes = [
           </ProtectedRoute>
         ),
         children: [
-          { index: true, element: <Navigate to="bookings" replace /> },
-          { path: "bookings", element: <Bookings /> },
-          { path: "announcements", element: <Announcements /> },
+          { index: true, element: <Navigate to="bookings_emp" replace /> },
+          { path: "bookings_emp", element: <Bookings_emp /> },
+          { path: "announcements_emp", element: <Announcements_emp /> },
           { path: "rooms", element: <Rooms /> },
-          { path: "history", element: <History /> },
+          { path: "history_emp", element: <History_emp /> },
         ],
       },
     ],
