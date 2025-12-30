@@ -9,6 +9,9 @@ const StyledTable = styled.div`
   background-color: var(--color-grey-0);
   border-radius: 7px;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
 `;
 
 const CommonRow = styled.div`
@@ -40,6 +43,8 @@ const StyledRow = styled(CommonRow)`
 
 const StyledBody = styled.section`
   margin: 0.4rem 0;
+  flex: 1;
+  overflow: auto;
 `;
 
 const Footer = styled.footer`
@@ -63,16 +68,19 @@ const Empty = styled.p`
 
 const TableContext = createContext();
 
-function Table({ columns, children }) {
+function Table({ columns, children, ...props }) {
   return (
     <TableContext.Provider value={{ columns }}>
-      <StyledTable role="table">{children}</StyledTable>
+      <StyledTable role="table" {...props}>
+        {children}
+      </StyledTable>
     </TableContext.Provider>
   );
 }
 Table.propTypes = {
   columns: PropTypes.string,
   children: PropTypes.node,
+  // Allow other props
 };
 
 function Header({ children }) {

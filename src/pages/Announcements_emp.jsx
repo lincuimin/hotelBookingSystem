@@ -112,7 +112,13 @@ export function Announcements_emp() {
   if (isLoading) return <Spinner />;
 
   return (
-    <>
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        width: "100%",
+      }}
+    >
       <Row type="horizontal" style={{ marginBottom: "2rem" }}>
         <Heading as="h1">公告</Heading>
         <Modal>
@@ -125,8 +131,8 @@ export function Announcements_emp() {
         </Modal>
       </Row>
 
-      <Row>
-        <Table columns="1.5fr 3fr 1.5fr 1.5fr 1fr">
+      <Row style={{ width: "100%" }}>
+        <Table columns="1.5fr 3fr 1.5fr 1.5fr 1fr" style={{ width: "100%" }}>
           <Table.Header>
             <div>标题</div>
             <div>内容</div>
@@ -173,6 +179,6 @@ export function Announcements_emp() {
           />
         </Table>
       </Row>
-    </>
+    </div>
   );
 }
