@@ -4,17 +4,20 @@ import Row from "../ui/Row";
 import Table from "../ui/Table";
 import Tag from "../ui/Tag";
 import Spinner from "../ui/Spinner";
+import SpinnerMini from "../ui/SpinnerMini";
 import Button from "../ui/Button";
 import Modal from "../ui/Modal";
 import Form from "../ui/Form";
 import FormRow from "../ui/FormRow";
 import Input from "../ui/input";
+import Select from "../ui/Select";
 import Textarea from "../ui/Textarea";
 import {
   getBookings,
   updateBookingStatus,
   createBooking,
 } from "../services/apiBookings";
+import { getRooms } from "../services/apiRooms";
 import ActionButton from "../ui/ActionButton";
 
 function BookingForm({ onCloseModal, onSave }) {
@@ -25,6 +28,84 @@ function BookingForm({ onCloseModal, onSave }) {
   const [guestCount, setGuestCount] = useState(1);
   const [price, setPrice] = useState("");
   const [remarks, setRemarks] = useState("");
+  const [availableRooms, setAvailableRooms] = useState([]);
+  const [rawAvailableRooms, setRawAvailableRooms] = useState([]);
+  const [isCheckingAvailability, setIsCheckingAvailability] = useState(false);
+
+  useEffect(() => {
+    async function checkAvailability() {
+      if (!checkInTime || !checkOutTime) {
+        setAvailableRooms([]);
+        setRawAvailableRooms([]);
+        return;
+      }
+
+      const start = new Date(checkInTime);
+      const end = new Date(checkOutTime);
+
+      if (start >= end) {
+        setAvailableRooms([]);
+        setRawAvailableRooms([]);
+        return;
+      }
+
+      setIsCheckingAvailability(true);
+      try {
+        const [roomsData, bookingsData] = await Promise.all([
+          getRooms(),
+          getBookings(),
+        ]);
+
+        const available = roomsData.filter((room) => {
+          if (!room.is_available) return false;
+
+          const hasOverlap = bookingsData.some((booking) => {
+            if (booking.cabin_id !== room.id) return false;
+            if (!["reserved", "checked-in"].includes(booking.status))
+              return false;
+
+            const bookingStart = new Date(booking.earliest_check_in_time);
+            const bookingEnd = new Date(booking.latest_check_out_time);
+
+            return start < bookingEnd && end > bookingStart;
+          });
+
+          return !hasOverlap;
+        });
+
+        setRawAvailableRooms(available);
+        setAvailableRooms(
+          available.map((room) => ({
+            value: room.id,
+            label: `${room.id} - ${room.type} (¥${room.price})`,
+          }))
+        );
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setIsCheckingAvailability(false);
+      }
+    }
+
+    checkAvailability();
+  }, [checkInTime, checkOutTime]);
+
+  useEffect(() => {
+    if (!cabinId) return;
+    const room = rawAvailableRooms.find((r) => r.id === Number(cabinId));
+    if (room) {
+      setGuestCount(room.capacity);
+      if (checkInTime && checkOutTime) {
+        const start = new Date(checkInTime);
+        const end = new Date(checkOutTime);
+        const nights = Math.max(
+          1,
+          Math.ceil((end - start) / (1000 * 60 * 60 * 24))
+        );
+        setPrice(room.price * nights);
+      }
+    }
+  }, [cabinId, checkInTime, checkOutTime, rawAvailableRooms]);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -45,24 +126,6 @@ function BookingForm({ onCloseModal, onSave }) {
 
   return (
     <Form onSubmit={handleSubmit}>
-      <FormRow label="房间号">
-        <Input
-          type="number"
-          id="cabinId"
-          value={cabinId}
-          onChange={(e) => setCabinId(e.target.value)}
-          required
-        />
-      </FormRow>
-      <FormRow label="客户ID">
-        <Input
-          type="number"
-          id="customerId"
-          value={customerId}
-          onChange={(e) => setCustomerId(e.target.value)}
-          required
-        />
-      </FormRow>
       <FormRow label="入住时间">
         <Input
           type="datetime-local"
@@ -81,25 +144,51 @@ function BookingForm({ onCloseModal, onSave }) {
           required
         />
       </FormRow>
+      <FormRow label="房间号">
+        {isCheckingAvailability ? (
+          <SpinnerMini />
+        ) : (
+          <Select
+            id="cabinId"
+            value={cabinId}
+            onChange={(e) => setCabinId(e.target.value)}
+            options={[
+              {
+                value: "",
+                label:
+                  availableRooms.length > 0
+                    ? "请选择房间"
+                    : checkInTime && checkOutTime
+                    ? "该时段无可用房间"
+                    : "请先选择时间",
+              },
+              ...availableRooms,
+            ]}
+            disabled={availableRooms.length === 0}
+            required
+          />
+        )}
+      </FormRow>
+      <FormRow label="客户ID">
+        <Input
+          type="number"
+          id="customerId"
+          value={customerId}
+          onChange={(e) => setCustomerId(e.target.value)}
+          required
+        />
+      </FormRow>
       <FormRow label="人数">
         <Input
           type="number"
           id="guestCount"
           value={guestCount}
-          onChange={(e) => setGuestCount(e.target.value)}
-          required
-          min={1}
+          readOnly
+          disabled
         />
       </FormRow>
       <FormRow label="价格">
-        <Input
-          type="number"
-          id="price"
-          value={price}
-          onChange={(e) => setPrice(e.target.value)}
-          required
-          min={0}
-        />
+        <Input type="number" id="price" value={price} readOnly disabled />
       </FormRow>
       <FormRow label="备注">
         <Textarea
