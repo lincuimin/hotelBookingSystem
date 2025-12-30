@@ -70,7 +70,7 @@ function CustomerForm({ customerToEdit = {}, onCloseModal, onSave }) {
       </FormRow>
       <FormRow label="密码">
         <Input
-          type="password"
+          type="text"
           id="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
@@ -157,10 +157,11 @@ export function Customers() {
       </Row>
 
       <Row>
-        <Table columns="0.8fr 1.2fr 1.2fr 1fr 0.5fr 0.8fr 0.8fr 0.5fr">
+        <Table columns="0.8fr 1.2fr 1fr 1.2fr 1fr 0.5fr 0.8fr 0.8fr 0.5fr">
           <Table.Header>
             <div>姓名</div>
             <div>邮箱</div>
+            <div>密码</div>
             <div>身份证号</div>
             <div>电话</div>
             <div>性别</div>
@@ -175,6 +176,7 @@ export function Customers() {
               <Table.Row key={customer.id}>
                 <div>{customer.name}</div>
                 <div>{customer.email}</div>
+                <div>{customer.password}</div>
                 <div>{customer.id_card}</div>
                 <div>{customer.phone}</div>
                 <div>{customer.gender}</div>

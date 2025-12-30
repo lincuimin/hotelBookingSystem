@@ -75,7 +75,7 @@ function EmployeeForm({ employeeToEdit = {}, onCloseModal, onSave }) {
       </FormRow>
       <FormRow label="密码">
         <Input
-          type="password"
+          type="text"
           id="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
@@ -187,10 +187,11 @@ export function Employees() {
       </Row>
 
       <Row>
-        <Table columns="0.8fr 1.2fr 0.5fr 1fr 1fr 1fr 1.2fr 0.5fr">
+        <Table columns="0.8fr 1.2fr 1fr 0.5fr 1fr 1fr 1fr 1.2fr 0.5fr">
           <Table.Header>
             <div>姓名</div>
             <div>邮箱</div>
+            <div>密码</div>
             <div>性别</div>
             <div>部门</div>
             <div>职位</div>
@@ -205,6 +206,7 @@ export function Employees() {
               <Table.Row key={employee.id}>
                 <div>{employee.name}</div>
                 <div>{employee.email}</div>
+                <div>{employee.password}</div>
                 <div>{employee.gender}</div>
                 <div>{employee.department}</div>
                 <div>{employee.position}</div>
