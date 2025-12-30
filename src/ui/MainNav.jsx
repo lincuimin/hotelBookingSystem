@@ -40,19 +40,19 @@ function MainNav() {
 
   const navItems = {
     admin: [
-      { path: "/app/admin", label: "员工" },
-      { path: "/app/admin", label: "客户" },
+      { path: "/app/admin/employees", label: "员工" },
+      { path: "/app/admin/customers", label: "客户" },
     ],
     customer: [
-      { path: "/app/customer", label: "公告" },
-      { path: "/app/customer", label: "预订" },
-      { path: "/app/customer", label: "历史" },
+      { path: "/app/customer/announcements", label: "公告" },
+      { path: "/app/customer/bookings", label: "预订" },
+      { path: "/app/customer/history", label: "历史" },
     ],
     employee: [
-      { path: "/app/employee", label: "预订" },
-      { path: "/app/employee", label: "公告" },
-      { path: "/app/employee", label: "房间" },
-      { path: "/app/employee", label: "历史" },
+      { path: "/app/employee/bookings", label: "预订" },
+      { path: "/app/employee/announcements", label: "公告" },
+      { path: "/app/employee/rooms", label: "房间" },
+      { path: "/app/employee/history", label: "历史" },
     ],
   };
 

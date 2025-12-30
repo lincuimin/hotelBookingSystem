@@ -1,11 +1,14 @@
-import { Navigate } from "react-router-dom";
+import { Navigate, Outlet } from "react-router-dom";
 import { Login } from "../pages/Login";
-import { AdminDashboard } from "../pages/AdminDashboard";
-import { CustomerDashboard } from "../pages/CustomerDashboard";
-import { EmployeeDashboard } from "../pages/EmployeeDashboard";
 import { Unauthorized } from "../pages/Unauthorized";
 import { ProtectedRoute } from "../components/ProtectedRoute";
 import AppLayout from "../ui/AppLayout";
+import { Employees } from "../pages/Employees";
+import { Customers } from "../pages/Customers";
+import { Announcements } from "../pages/Announcements";
+import { Bookings } from "../pages/Bookings";
+import { History } from "../pages/History";
+import { Rooms } from "../pages/Rooms";
 
 export const routes = [
   {
@@ -24,25 +27,43 @@ export const routes = [
         path: "admin",
         element: (
           <ProtectedRoute allowedRoles={["admin"]}>
-            <AdminDashboard />
+            <Outlet />
           </ProtectedRoute>
         ),
+        children: [
+          { index: true, element: <Navigate to="employees" replace /> },
+          { path: "employees", element: <Employees /> },
+          { path: "customers", element: <Customers /> },
+        ],
       },
       {
         path: "customer",
         element: (
           <ProtectedRoute allowedRoles={["customer"]}>
-            <CustomerDashboard />
+            <Outlet />
           </ProtectedRoute>
         ),
+        children: [
+          { index: true, element: <Navigate to="announcements" replace /> },
+          { path: "announcements", element: <Announcements /> },
+          { path: "bookings", element: <Bookings /> },
+          { path: "history", element: <History /> },
+        ],
       },
       {
         path: "employee",
         element: (
           <ProtectedRoute allowedRoles={["employee"]}>
-            <EmployeeDashboard />
+            <Outlet />
           </ProtectedRoute>
         ),
+        children: [
+          { index: true, element: <Navigate to="bookings" replace /> },
+          { path: "bookings", element: <Bookings /> },
+          { path: "announcements", element: <Announcements /> },
+          { path: "rooms", element: <Rooms /> },
+          { path: "history", element: <History /> },
+        ],
       },
     ],
   },
