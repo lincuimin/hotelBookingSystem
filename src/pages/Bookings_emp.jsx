@@ -184,7 +184,7 @@ export function Bookings_emp() {
       </Row>
 
       <Row>
-        <Table columns=" 1fr 1fr 1fr 1.5fr 1.5fr 0.8fr 1fr 1.2fr 2fr 1.2fr">
+        <Table columns=" 1fr 1fr 1fr 1.5fr 1.5fr 0.8fr 1fr 1.2fr 3fr 1.2fr">
           <Table.Header>
             <div>订单号</div>
             <div>房间号</div>

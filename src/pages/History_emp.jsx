@@ -39,7 +39,7 @@ export function History_emp() {
       </Row>
 
       <Row>
-        <Table columns="1fr 1fr 1fr 2fr 2fr 0.8fr 1fr 2fr 4fr">
+        <Table columns="1fr 1fr 1fr 2fr 2fr 1fr 1fr 2fr 4fr">
           <Table.Header>
             <div>订单号</div>
             <div>房间号</div>
