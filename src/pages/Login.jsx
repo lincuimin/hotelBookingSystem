@@ -7,12 +7,15 @@ import Input from "../ui/input";
 import Button from "../ui/Button";
 import Select from "../ui/Select";
 
-const LoginContainer = styled.div`
+const LoginContainer = styled.main`
   min-height: 100vh;
-  display: flex;
+  display: grid;
+  grid-template-columns: 48rem;
+  align-content: center;
   justify-content: center;
-  align-items: center;
+  gap: 3.2rem;
   background-color: var(--color-grey-50);
+  border-radius: var(--border-radius-lg);
 `;
 
 const FormRow = styled.div`
