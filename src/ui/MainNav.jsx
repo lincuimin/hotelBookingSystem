@@ -5,7 +5,7 @@ import { useAuth } from "../context/useAuth";
 const NavList = styled.ul`
   display: flex;
   flex-direction: column;
-  gap: 0.8rem;
+  gap: 2.4rem;
   list-style: none;
   padding: 0;
   margin: 0;
@@ -16,6 +16,7 @@ const StyledNavLink = styled(NavLink)`
   &:visited {
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 1.2rem;
 
     color: var(--color-grey-600);
@@ -29,8 +30,8 @@ const StyledNavLink = styled(NavLink)`
   &:active,
   &.active:link,
   &.active:visited {
-    color: var(--color-grey-800);
-    background-color: var(--color-grey-50);
+    color: var(--color-grey-0);
+    background-color: var(--color-indigo-700);
     border-radius: var(--border-radius-sm);
   }
 `;
