@@ -10,6 +10,7 @@ export function AuthProvider({ children }) {
       setUser({
         username,
         role, // 'admin' | 'customer' | 'employee'
+        id: role === "customer" ? 1 : undefined, // Mock customer ID for demo
       });
       return true;
     }
