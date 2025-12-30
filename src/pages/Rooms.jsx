@@ -146,7 +146,7 @@ export function Rooms() {
   return (
     <>
       <Row type="horizontal" style={{ marginBottom: "2rem" }}>
-        <Heading as="h1">房间管理</Heading>
+        <Heading as="h1">房间</Heading>
         <Modal>
           <Modal.Open opens="create-room">
             <Button>添加房间</Button>
