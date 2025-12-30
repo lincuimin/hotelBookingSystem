@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import styled from "styled-components";
 import Heading from "../ui/Heading";
 import Row from "../ui/Row";
 import Button from "../ui/Button";
@@ -10,6 +9,7 @@ import FormRow from "../ui/FormRow";
 import Input from "../ui/input";
 import Select from "../ui/Select";
 import Spinner from "../ui/Spinner";
+import ActionButton from "../ui/ActionButton";
 import {
   getEmployees,
   createEmployee,
@@ -17,24 +17,6 @@ import {
   deleteEmployee,
 } from "../services/apiEmployees";
 import { HiPencil, HiTrash } from "react-icons/hi2";
-
-const ActionButton = styled.button`
-  background: none;
-  border: none;
-  padding: 0.4rem;
-  font-size: 1.4rem;
-  transition: all 0.2s;
-
-  &:hover {
-    background-color: var(--color-grey-100);
-  }
-
-  & svg {
-    width: 1.6rem;
-    height: 1.6rem;
-    color: var(--color-grey-500);
-  }
-`;
 
 function EmployeeForm({ employeeToEdit = {}, onCloseModal, onSave }) {
   const { id: editId, ...editValues } = employeeToEdit;
