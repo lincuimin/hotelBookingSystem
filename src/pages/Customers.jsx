@@ -162,10 +162,8 @@ export function Customers() {
 
   return (
     <>
-      <Row type="horizontal">
-        <Heading as="h1" style={{ marginBottom: "2rem" }}>
-          客户管理
-        </Heading>
+      <Row type="horizontal" style={{ marginBottom: "2rem" }}>
+        <Heading as="h1">客户管理</Heading>
         <Modal>
           <Modal.Open opens="create-customer">
             <Button>添加客户</Button>

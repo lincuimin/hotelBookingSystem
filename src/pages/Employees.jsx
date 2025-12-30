@@ -192,10 +192,8 @@ export function Employees() {
 
   return (
     <>
-      <Row type="horizontal">
-        <Heading as="h1" style={{ marginBottom: "2rem" }}>
-          员工管理
-        </Heading>
+      <Row type="horizontal" style={{ marginBottom: "2rem" }}>
+        <Heading as="h1">员工管理</Heading>
         <Modal>
           <Modal.Open opens="create-employee">
             <Button>添加员工</Button>
