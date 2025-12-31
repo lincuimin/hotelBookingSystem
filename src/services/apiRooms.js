@@ -1,66 +1,53 @@
-// Mock data for Rooms (Cabins)
-let rooms = [
-  {
-    id: 101,
-    is_booked: false,
-    is_available: true,
-    price: 300,
-    type: "标准间",
-    capacity: 2,
-    description: "舒适的标准双人间，配备独立卫浴。",
-  },
-  {
-    id: 102,
-    is_booked: true,
-    is_available: true,
-    price: 500,
-    type: "豪华大床房",
-    capacity: 2,
-    description: "宽敞豪华大床房，拥有城市景观。",
-  },
-  {
-    id: 201,
-    is_booked: false,
-    is_available: false,
-    price: 800,
-    type: "家庭套房",
-    capacity: 4,
-    description: "适合家庭入住，包含两个卧室和客厅。",
-  },
-  {
-    id: 202,
-    is_booked: false,
-    is_available: true,
-    price: 1200,
-    type: "总统套房",
-    capacity: 2,
-    description: "顶级奢华体验，私人管家服务。",
-  },
-];
+const API_BASE = '/api';
+
+async function handleResponse(response, errorMessage) {
+  if (!response.ok) {
+    try {
+      const error = await response.json();
+      throw new Error(error.error || error.message || errorMessage);
+    } catch (e) {
+      if (e.message) throw e;
+      throw new Error(errorMessage);
+    }
+  }
+  return response.json();
+}
 
 export async function getRooms() {
-  await new Promise((resolve) => setTimeout(resolve, 500));
-  return rooms;
+  const response = await fetch(`${API_BASE}/cabins`);
+  return handleResponse(response, '获取房间列表失败');
 }
 
 export async function createRoom(newRoom) {
-  await new Promise((resolve) => setTimeout(resolve, 500));
-  const id = Math.floor(Math.random() * 1000) + 300; // Random ID
-  const room = { ...newRoom, id, is_booked: false };
-  rooms = [room, ...rooms];
-  return room;
+  const response = await fetch(`${API_BASE}/cabins`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(newRoom),
+  });
+  return handleResponse(response, '创建房间失败');
 }
 
 export async function updateRoom(id, updatedRoom) {
-  await new Promise((resolve) => setTimeout(resolve, 500));
-  rooms = rooms.map((room) =>
-    room.id === id ? { ...room, ...updatedRoom } : room
-  );
-  return { ...updatedRoom, id };
+  const response = await fetch(`${API_BASE}/cabins/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(updatedRoom),
+  });
+  return handleResponse(response, '更新房间失败');
 }
 
 export async function deleteRoom(id) {
-  await new Promise((resolve) => setTimeout(resolve, 500));
-  rooms = rooms.filter((room) => room.id !== id);
+  const response = await fetch(`${API_BASE}/cabins/${id}`, {
+    method: 'DELETE',
+  });
+  if (!response.ok) {
+    try {
+      const error = await response.json();
+      throw new Error(error.error || error.message || '删除房间失败');
+    } catch (e) {
+      if (e.message) throw e;
+      throw new Error('删除房间失败');
+    }
+  }
   return id;
 }

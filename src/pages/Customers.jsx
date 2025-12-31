@@ -16,6 +16,7 @@ import {
   updateCustomer,
 } from "../services/apiCustomers";
 import { HiPencil } from "react-icons/hi2";
+import { useToast } from "../context/ToastContext";
 
 function CustomerForm({ customerToEdit = {}, onCloseModal, onSave }) {
   const { id: editId, ...editValues } = customerToEdit;
@@ -123,6 +124,7 @@ function CustomerForm({ customerToEdit = {}, onCloseModal, onSave }) {
 export function Customers() {
   const [customers, setCustomers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const { showError } = useToast();
 
   async function fetchCustomers() {
     setIsLoading(true);
@@ -130,7 +132,7 @@ export function Customers() {
       const data = await getCustomers();
       setCustomers(data);
     } catch (error) {
-      console.error("Failed to fetch customers", error);
+      showError(error.message || "获取客户列表失败");
     } finally {
       setIsLoading(false);
     }
