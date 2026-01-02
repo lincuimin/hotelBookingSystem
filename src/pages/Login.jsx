@@ -66,7 +66,7 @@ export function Login() {
     }
   }, [user, navigate]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!username || !password) {
@@ -74,12 +74,14 @@ export function Login() {
       return;
     }
 
-    const success = login(username, password, role);
+    setError(""); // Clear previous error
+
+    const success = await login(username, password, role);
 
     if (success) {
       pendingRoleRef.current = role;
     } else {
-      setError("登录失败，请重试");
+      setError("登录失败：用户名或密码错误");
     }
   };
 

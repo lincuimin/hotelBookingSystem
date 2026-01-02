@@ -17,6 +17,7 @@ import {
   deleteEmployee,
 } from "../services/apiEmployees";
 import { HiPencil, HiTrash } from "react-icons/hi2";
+import { useToast } from "../context/ToastContext";
 
 function EmployeeForm({ employeeToEdit = {}, onCloseModal, onSave }) {
   const { id: editId, ...editValues } = employeeToEdit;
@@ -146,6 +147,7 @@ function EmployeeForm({ employeeToEdit = {}, onCloseModal, onSave }) {
 export function Employees() {
   const [employees, setEmployees] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const { showError, showSuccess } = useToast();
 
   async function fetchEmployees() {
     setIsLoading(true);
@@ -153,7 +155,7 @@ export function Employees() {
       const data = await getEmployees();
       setEmployees(data);
     } catch (error) {
-      console.error("Failed to fetch employees", error);
+      showError(error.message || "获取员工列表失败");
     } finally {
       setIsLoading(false);
     }
@@ -165,8 +167,13 @@ export function Employees() {
 
   async function handleDelete(id) {
     if (window.confirm("确定要删除这名员工吗？")) {
-      await deleteEmployee(id);
-      fetchEmployees();
+      try {
+        await deleteEmployee(id);
+        showSuccess("员工删除成功");
+        fetchEmployees();
+      } catch (error) {
+        showError(error.message || "删除员工失败");
+      }
     }
   }
 

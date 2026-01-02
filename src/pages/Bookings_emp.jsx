@@ -19,6 +19,7 @@ import {
 } from "../services/apiBookings";
 import { getRooms } from "../services/apiRooms";
 import ActionButton from "../ui/ActionButton";
+import { useToast } from "../context/ToastContext";
 
 function BookingForm({ onCloseModal, onSave }) {
   const [cabinId, setCabinId] = useState("");
@@ -31,9 +32,13 @@ function BookingForm({ onCloseModal, onSave }) {
   const [availableRooms, setAvailableRooms] = useState([]);
   const [rawAvailableRooms, setRawAvailableRooms] = useState([]);
   const [isCheckingAvailability, setIsCheckingAvailability] = useState(false);
+  const [formError, setFormError] = useState("");
+  const { showError, showSuccess } = useToast();
 
   useEffect(() => {
     async function checkAvailability() {
+      setFormError("");
+
       if (!checkInTime || !checkOutTime) {
         setAvailableRooms([]);
         setRawAvailableRooms([]);
@@ -42,8 +47,19 @@ function BookingForm({ onCloseModal, onSave }) {
 
       const start = new Date(checkInTime);
       const end = new Date(checkOutTime);
+      const now = new Date();
 
+      // Validate: check-in time must be before check-out time
       if (start >= end) {
+        setFormError("入住时间必须早于退房时间");
+        setAvailableRooms([]);
+        setRawAvailableRooms([]);
+        return;
+      }
+
+      // Validate: check-in time should not be in the past
+      if (start < now && start.toDateString() !== now.toDateString()) {
+        setFormError("入住时间不能是过去的日期");
         setAvailableRooms([]);
         setRawAvailableRooms([]);
         return;
@@ -80,15 +96,19 @@ function BookingForm({ onCloseModal, onSave }) {
             label: `${room.id} - ${room.type} (¥${room.price})`,
           }))
         );
+
+        if (available.length === 0) {
+          setFormError("该时段没有可用房间");
+        }
       } catch (err) {
-        console.error(err);
+        showError("检查房间可用性失败");
       } finally {
         setIsCheckingAvailability(false);
       }
     }
 
     checkAvailability();
-  }, [checkInTime, checkOutTime]);
+  }, [checkInTime, checkOutTime, showError]);
 
   useEffect(() => {
     if (!cabinId) return;
@@ -109,6 +129,17 @@ function BookingForm({ onCloseModal, onSave }) {
 
   async function handleSubmit(e) {
     e.preventDefault();
+
+    // Final validation before submit
+    if (!cabinId) {
+      setFormError("请选择房间");
+      return;
+    }
+    if (!customerId) {
+      setFormError("请输入客户ID");
+      return;
+    }
+
     const data = {
       cabin_id: Number(cabinId),
       customer_id: Number(customerId),
@@ -119,13 +150,29 @@ function BookingForm({ onCloseModal, onSave }) {
       remarks,
     };
 
-    await createBooking(data);
-    onSave();
-    onCloseModal?.();
+    try {
+      await createBooking(data);
+      showSuccess("预订创建成功");
+      onSave();
+      onCloseModal?.();
+    } catch (error) {
+      showError(error.message || "创建预订失败");
+    }
   }
 
   return (
     <Form onSubmit={handleSubmit}>
+      {formError && (
+        <div style={{
+          color: 'var(--color-red-700)',
+          backgroundColor: 'var(--color-red-100)',
+          padding: '1.2rem',
+          borderRadius: 'var(--border-radius-sm)',
+          marginBottom: '1.6rem'
+        }}>
+          {formError}
+        </div>
+      )}
       <FormRow label="入住时间">
         <Input
           type="datetime-local"
@@ -159,8 +206,8 @@ function BookingForm({ onCloseModal, onSave }) {
                   availableRooms.length > 0
                     ? "请选择房间"
                     : checkInTime && checkOutTime
-                    ? "该时段无可用房间"
-                    : "请先选择时间",
+                      ? "该时段无可用房间"
+                      : "请先选择时间",
               },
               ...availableRooms,
             ]}
@@ -214,6 +261,7 @@ function BookingForm({ onCloseModal, onSave }) {
 export function Bookings_emp() {
   const [bookings, setBookings] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const { showError, showSuccess } = useToast();
 
   async function fetchBookings() {
     setIsLoading(true);
@@ -225,7 +273,7 @@ export function Bookings_emp() {
       );
       setBookings(activeBookings);
     } catch (error) {
-      console.error("Failed to fetch bookings", error);
+      showError(error.message || "获取订单列表失败");
     } finally {
       setIsLoading(false);
     }
@@ -237,22 +285,37 @@ export function Bookings_emp() {
 
   async function handleCheckIn(id) {
     if (window.confirm("确认办理入住？")) {
-      await updateBookingStatus(id, "checked-in");
-      fetchBookings();
+      try {
+        await updateBookingStatus(id, "checked-in");
+        showSuccess("入住办理成功");
+        fetchBookings();
+      } catch (error) {
+        showError(error.message || "入住办理失败");
+      }
     }
   }
 
   async function handleCheckOut(id) {
     if (window.confirm("确认办理退房？")) {
-      await updateBookingStatus(id, "checked-out");
-      fetchBookings();
+      try {
+        await updateBookingStatus(id, "checked-out");
+        showSuccess("退房办理成功");
+        fetchBookings();
+      } catch (error) {
+        showError(error.message || "退房办理失败");
+      }
     }
   }
 
   async function handleCancel(id) {
     if (window.confirm("确认取消该预订？")) {
-      await updateBookingStatus(id, "cancelled");
-      fetchBookings();
+      try {
+        await updateBookingStatus(id, "cancelled");
+        showSuccess("预订已取消");
+        fetchBookings();
+      } catch (error) {
+        showError(error.message || "取消预订失败");
+      }
     }
   }
 

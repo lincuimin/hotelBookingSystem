@@ -19,6 +19,7 @@ import {
   deleteRoom,
 } from "../services/apiRooms";
 import { HiPencil, HiTrash } from "react-icons/hi2";
+import { useToast } from "../context/ToastContext";
 
 function RoomForm({ roomToEdit = {}, onCloseModal, onSave }) {
   const { id: editId, ...editValues } = roomToEdit;
@@ -117,6 +118,7 @@ function RoomForm({ roomToEdit = {}, onCloseModal, onSave }) {
 export function Rooms() {
   const [rooms, setRooms] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const { showError, showSuccess } = useToast();
 
   async function fetchRooms() {
     setIsLoading(true);
@@ -124,7 +126,7 @@ export function Rooms() {
       const data = await getRooms();
       setRooms(data);
     } catch (error) {
-      console.error("Failed to fetch rooms", error);
+      showError(error.message || "获取房间列表失败");
     } finally {
       setIsLoading(false);
     }
@@ -136,8 +138,13 @@ export function Rooms() {
 
   async function handleDelete(id) {
     if (window.confirm("确定要删除这个房间吗？")) {
-      await deleteRoom(id);
-      fetchRooms();
+      try {
+        await deleteRoom(id);
+        showSuccess("房间删除成功");
+        fetchRooms();
+      } catch (error) {
+        showError(error.message || "删除房间失败");
+      }
     }
   }
 

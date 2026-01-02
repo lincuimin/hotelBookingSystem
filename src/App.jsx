@@ -1,5 +1,6 @@
 import { useRoutes } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext.jsx";
+import { ToastProvider } from "./context/ToastContext.jsx";
 import { routes } from "./router/routes";
 import GlobalStyles from "./styles/GlobalStyles";
 
@@ -9,7 +10,9 @@ function App() {
   return (
     <>
       <GlobalStyles />
-      <AuthProvider>{element}</AuthProvider>
+      <ToastProvider>
+        <AuthProvider>{element}</AuthProvider>
+      </ToastProvider>
     </>
   );
 }

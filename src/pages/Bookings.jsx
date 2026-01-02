@@ -20,6 +20,7 @@ import {
 import { getRooms } from "../services/apiRooms";
 import { useAuth } from "../context/useAuth";
 import ActionButton from "../ui/ActionButton";
+import { useToast } from "../context/ToastContext";
 
 function BookingForm({ onCloseModal, onSave, customerId }) {
   const [cabinId, setCabinId] = useState("");
@@ -31,9 +32,13 @@ function BookingForm({ onCloseModal, onSave, customerId }) {
   const [rawAvailableRooms, setRawAvailableRooms] = useState([]);
   const [price, setPrice] = useState(0);
   const [isCheckingAvailability, setIsCheckingAvailability] = useState(false);
+  const [formError, setFormError] = useState("");
+  const { showError, showSuccess } = useToast();
 
   useEffect(() => {
     async function checkAvailability() {
+      setFormError("");
+
       if (!checkInTime || !checkOutTime) {
         setAvailableRooms([]);
         setRawAvailableRooms([]);
@@ -42,8 +47,17 @@ function BookingForm({ onCloseModal, onSave, customerId }) {
 
       const start = new Date(checkInTime);
       const end = new Date(checkOutTime);
+      const now = new Date();
 
       if (start >= end) {
+        setFormError("入住时间必须早于退房时间");
+        setAvailableRooms([]);
+        setRawAvailableRooms([]);
+        return;
+      }
+
+      if (start < now && start.toDateString() !== now.toDateString()) {
+        setFormError("入住时间不能是过去的日期");
         setAvailableRooms([]);
         setRawAvailableRooms([]);
         return;
@@ -57,10 +71,8 @@ function BookingForm({ onCloseModal, onSave, customerId }) {
         ]);
 
         const available = roomsData.filter((room) => {
-          // Check if room is generally available (not maintenance)
           if (!room.is_available) return false;
 
-          // Check for overlaps
           const hasOverlap = bookingsData.some((booking) => {
             if (booking.cabin_id !== room.id) return false;
             if (!["reserved", "checked-in"].includes(booking.status))
@@ -82,15 +94,19 @@ function BookingForm({ onCloseModal, onSave, customerId }) {
             label: `${room.id} - ${room.type} (¥${room.price})`,
           }))
         );
+
+        if (available.length === 0) {
+          setFormError("该时段没有可用房间");
+        }
       } catch (err) {
-        console.error(err);
+        showError("检查房间可用性失败");
       } finally {
         setIsCheckingAvailability(false);
       }
     }
 
     checkAvailability();
-  }, [checkInTime, checkOutTime]);
+  }, [checkInTime, checkOutTime, showError]);
 
   useEffect(() => {
     if (!cabinId) return;
@@ -112,6 +128,11 @@ function BookingForm({ onCloseModal, onSave, customerId }) {
   async function handleSubmit(e) {
     e.preventDefault();
 
+    if (!cabinId) {
+      setFormError("请选择房间");
+      return;
+    }
+
     const data = {
       cabin_id: Number(cabinId),
       customer_id: customerId,
@@ -122,13 +143,29 @@ function BookingForm({ onCloseModal, onSave, customerId }) {
       remarks,
     };
 
-    await createBooking(data);
-    onSave();
-    onCloseModal?.();
+    try {
+      await createBooking(data);
+      showSuccess("预订提交成功");
+      onSave();
+      onCloseModal?.();
+    } catch (error) {
+      showError(error.message || "创建预订失败");
+    }
   }
 
   return (
     <Form onSubmit={handleSubmit}>
+      {formError && (
+        <div style={{
+          color: 'var(--color-red-700)',
+          backgroundColor: 'var(--color-red-100)',
+          padding: '1.2rem',
+          borderRadius: 'var(--border-radius-sm)',
+          marginBottom: '1.6rem'
+        }}>
+          {formError}
+        </div>
+      )}
       <FormRow label="入住时间">
         <Input
           type="datetime-local"
@@ -162,8 +199,8 @@ function BookingForm({ onCloseModal, onSave, customerId }) {
                   availableRooms.length > 0
                     ? "请选择房间"
                     : checkInTime && checkOutTime
-                    ? "该时段无可用房间"
-                    : "请先选择时间",
+                      ? "该时段无可用房间"
+                      : "请先选择时间",
               },
               ...availableRooms,
             ]}
